@@ -247,7 +247,7 @@ void writeFile(fs::FS &fs, const char *path, const char *message)
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(74880);
   Serial.println();
 
 #ifdef DO_LITTLEFS
