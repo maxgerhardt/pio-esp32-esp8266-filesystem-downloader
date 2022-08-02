@@ -48,7 +48,12 @@ class LittleFSInfo(FSInfo):
     def __init__(self, start, length, page_size, block_size):
         if env["PIOPLATFORM"] == "espressif32":
             #for ESP32: retrieve and evaluate, e.g. to mkspiffs_espressif32_arduino
-            self.tool = env.subst(env["MKSPIFFSTOOL"])
+            #Espressif32 Framework 3.X.X: MKSPIFFSTOOL
+            #Espressif32 Framework 4.X.X and 5.X.X: MKFSTOOL
+            if "MKSPIFFSTOOL" in env:
+                self.tool = env.subst(env["MKSPIFFSTOOL"])
+            else:
+                self.tool = env.subst(env["MKFSTOOL"])
         else:
             self.tool = env["MKFSTOOL"] # from mkspiffs package
         self.tool = join(platform.get_package_dir("tool-mklittlefs"), self.tool)
@@ -63,7 +68,12 @@ class SPIFFSInfo(FSInfo):
     def __init__(self, start, length, page_size, block_size):
         if env["PIOPLATFORM"] == "espressif32":
             #for ESP32: retrieve and evaluate, e.g. to mkspiffs_espressif32_arduino
-            self.tool = env.subst(env["MKSPIFFSTOOL"])
+            #Espressif32 Framework 3.X.X: MKSPIFFSTOOL
+            #Espressif32 Framework 4.X.X and 5.X.X: MKFSTOOL
+            if "MKSPIFFSTOOL" in env:
+                self.tool = env.subst(env["MKSPIFFSTOOL"])
+            else:
+                self.tool = env.subst(env["MKFSTOOL"])
         else:
             self.tool = env["MKFSTOOL"] # from mkspiffs package
         self.tool = join(platform.get_package_dir("tool-mkspiffs"), self.tool)
