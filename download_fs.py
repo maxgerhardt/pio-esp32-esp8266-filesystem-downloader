@@ -18,6 +18,7 @@ from platformio.builder.tools.pioupload import AutodetectUploadPort
 import os
 import subprocess
 import shutil
+import shlex
 
 Import("env")
 platform = env.PioPlatform()
@@ -61,7 +62,7 @@ class LittleFSInfo(FSInfo):
     def __repr__(self): 
         return f"FS type {self.fs_type} Start {hex(self.start)} Len {self.length} Page size {self.page_size} Block size {self.block_size} Tool: {self.tool}"
     def get_extract_cmd(self, input_file, output_dir):
-        return f'"{self.tool}" -b {self.block_size} -p {self.page_size} --unpack "{output_dir}" "{input_file}"'
+        return [self.tool, "-b", str(self.block_size), "-p", str(self.page_size), "--unpack", output_dir, input_file]
 
 
 class SPIFFSInfo(FSInfo):
@@ -81,7 +82,7 @@ class SPIFFSInfo(FSInfo):
     def __repr__(self): 
         return f"FS type {self.fs_type} Start {hex(self.start)} Len {self.length} Page size {self.page_size} Block size {self.block_size} Tool: {self.tool}"
     def get_extract_cmd(self, input_file, output_dir):
-        return f'"{self.tool}" -b {self.block_size} -p {self.page_size} --unpack "{output_dir}" "{input_file}"'
+        return [self.tool, "-b", str(self.block_size), "-p", str(self.page_size), "--unpack", output_dir, input_file]
 
 # SPIFFS helpers copied from ESP32, https://github.com/platformio/platform-espressif32/blob/develop/builder/main.py
 # Copyright 2014-present PlatformIO <contact@platformio.org>
@@ -266,22 +267,23 @@ def get_fs_type_start_and_length():
 def download_fs(fs_info: FSInfo):
     esptoolpy = join(platform.get_package_dir("tool-esptoolpy") or "", "esptool.py")
     fs_file = join(env["PROJECT_DIR"], f"downloaded_fs_{hex(fs_info.start)}_{hex(fs_info.length)}.bin")
-    esptoolpy_flags = [
+    esptoolpy_cmd = [
+            env["PYTHONEXE"],
+            esptoolpy,
             "--chip", mcu,
-            "--port", '"' + env.subst("$UPLOAD_PORT") + '"',
+            "--port", env.subst("$UPLOAD_PORT"),
             "--baud",  env.subst("$UPLOAD_SPEED"),
             "--before", "default_reset",
             "--after", "hard_reset",
             "read_flash", 
             hex(fs_info.start),
             hex(fs_info.length),
-            '"' + fs_file + '"'
+            fs_file
     ]
-    esptoolpy_cmd = '"' + env["PYTHONEXE"]+ '"' + ' "' + esptoolpy + '" ' + " ".join(esptoolpy_flags)
     print("Executing flash download command.")
-    print(esptoolpy_cmd)
+    print(shlex.join(esptoolpy_cmd))
     try:
-        returncode = subprocess.call(esptoolpy_cmd, shell=False)
+        subprocess.call(esptoolpy_cmd)
         print("Downloaded filesystem binary.")
         return (True, fs_file)
     except subprocess.CalledProcessError as exc:
@@ -302,9 +304,9 @@ def unpack_fs(fs_info: FSInfo, downloaded_file: str):
         os.makedirs(unpack_dir)
 
     cmd = fs_info.get_extract_cmd(downloaded_file, unpack_dir)
-    print("Executing extraction command: " + str(cmd))
+    print("Executing extraction command:", shlex.join(cmd))
     try:
-        returncode = subprocess.call(cmd, shell=False)
+        subprocess.call(cmd)
         print("Unpacked filesystem.")
         return (True, unpack_dir)
     except subprocess.CalledProcessError as exc:
