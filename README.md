@@ -12,7 +12,6 @@ The lack of this feature in the core is also tracked in the issue https://github
 
 * only works with ESP8266 and ESP32 chips. 
 * only works over the serial bootloader too, downloading the flash content via a JTAG adapter and OpenOCD is not implemented.
-* for the ESP32, only SPIFFS is supported. LittleFS support is not merged in mainline Arduino-ESP32 yet as a built-in library
 
 ## Usage
 
@@ -35,7 +34,7 @@ The paramaters needed for extraction of the file system binary and further decod
 
 ## Using in a different project
 
-To add this extractor task functionality to your project, simply copy the `download_fs.py` of this repository to your project and add 
+To add this extractor task functionality to your project, simply copy the `download_fs.py` of this repository to the root of your project (same as platformio.ini) and add 
 
 ```ini
 extra_scripts = download_fs.py
@@ -49,6 +48,7 @@ This repository contains a test firwmare for both ESP8266 and ESP32 chips and th
 * `esp8266_spiffs`: ESP8266 (NodeMCUv2) + SPIFFS
 * `esp8266_littlefs`: ESP8266 (NodeMCUv2) + LittleFS
 * `esp32dev`: ESP32 (ESP32 Dev Module C) + SPIFFS
+* `esp32dev`: ESP32 (DOIT ESP32 DEVKIT V1) + LittleFS
 
 are implemented. The `main.cpp` automatically recognizes which environment it is run in and interacts with the correct filesystem automatically.
 
