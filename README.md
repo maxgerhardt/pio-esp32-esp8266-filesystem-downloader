@@ -34,12 +34,23 @@ The paramaters needed for extraction of the file system binary and further decod
 
 ## Using in a different project
 
-To add this extractor task functionality to your project, simply copy the `download_fs.py` of this repository to the root of your project (same as platformio.ini) and add 
+To add this extractor task functionality to your project:
+1. Copy the file `download_fs.py` from this repository to the root of your project (same folder as platformio.ini).
+2. Edit the `platformio.ini` file and add `extra_scripts = download_fs.py` to one or several environments, for example:
+   ```ini
+   [env:esp8266]
+   ...
+   extra_scripts = download_fs.py
+   ...
+   
+   [env:esp32]
+   ...
+   extra_scripts = download_fs.py
+   ...
+   ```
+After a VSCode restart, the new task should appear.
 
-```ini
-extra_scripts = download_fs.py
-```
-to the `platformio.ini`. After a VSCode restart, the new task should appear.
+Notice that adding the `extra_scripts = download_fs.py` line to the global `[env]` section won't work.
 
 ## This Test Firmware
 
